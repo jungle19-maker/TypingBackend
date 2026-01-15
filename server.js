@@ -15,21 +15,6 @@ setupSecurity(app);
 
 app.use(express.json());
 
-import cors from "cors";
-import express from "express";
-
-app.use(cors({
-  origin: [
-    "http://localhost:5173",          // local frontend
-    "https://typingfrontend.vercel.app/" // production frontend (later)
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true
-}));
-
-app.use(express.json());
-
-
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
@@ -41,9 +26,11 @@ app.get('/health', (req, res) => {
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const resultRoutes = require('./routes/resultRoutes');
+const typingRoutes = require('./routes/typingRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/results', resultRoutes);
+app.use('/api/typing', typingRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);
