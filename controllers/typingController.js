@@ -1,4 +1,7 @@
-const { TWO_LETTER_WORDS, THREE_LETTER_WORDS, CAPITAL_CONTENT, PARAGRAPHS } = require('../data/typingContent');
+const {
+    TWO_LETTER_WORDS, THREE_LETTER_WORDS, FOUR_LETTER_WORDS, FIVE_LETTER_WORDS,
+    SIX_LETTER_WORDS, MIXED_DIFFICULT_WORDS, CAPITAL_CONTENT, PARAGRAPHS
+} = require('../data/typingContent');
 
 // Helper to shuffle array
 const shuffle = (array) => {
@@ -7,15 +10,30 @@ const shuffle = (array) => {
 
 exports.getWords = (req, res) => {
     const length = parseInt(req.query.length);
+    const difficulty = req.query.difficulty; // 'beginner', 'intermediate', 'advanced'
     let words = [];
 
-    if (length === 2) {
-        words = TWO_LETTER_WORDS;
-    } else if (length === 3) {
-        words = THREE_LETTER_WORDS;
+    if (difficulty) {
+        if (difficulty === 'beginner' || difficulty === 'basic') {
+            words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS];
+        } else if (difficulty === 'intermediate') {
+            words = [...FOUR_LETTER_WORDS, ...FIVE_LETTER_WORDS, ...SIX_LETTER_WORDS];
+        } else if (difficulty === 'advanced') {
+            words = [...SIX_LETTER_WORDS, ...MIXED_DIFFICULT_WORDS];
+        } else {
+            // Fallback
+            words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS];
+        }
+    } else if (length) {
+        if (length === 2) words = TWO_LETTER_WORDS;
+        else if (length === 3) words = THREE_LETTER_WORDS;
+        else if (length === 4) words = FOUR_LETTER_WORDS;
+        else if (length === 5) words = FIVE_LETTER_WORDS;
+        else if (length === 6) words = SIX_LETTER_WORDS;
+        else words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS];
     } else {
         // Default or other lengths if implemented later
-        words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS];
+        words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS, ...FOUR_LETTER_WORDS];
     }
 
     // Return shuffled subset or all
