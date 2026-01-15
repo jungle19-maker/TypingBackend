@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Typing Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">Typing<span>Master</span></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="welcome-section">
+            <h1>Welcome back, <span id="usernameDisplay" class="highlight">User</span>!</h1>
+            <p>Ready to improve your typing skills today?</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Games Played</h3>
+                <div class="stat-value" id="totalGames">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Speed</h3>
+                <div class="stat-value" id="avgSpeed">0 WPM</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Accuracy</h3>
+                <div class="stat-value" id="avgAccuracy">0%</div>
+            </div>
+        </div>
+
+        <h2>Select Game Mode</h2>
+        <div class="game-modes-grid">
+            <div class="game-mode-card" onclick="location.href='game.html?mode=classic'">
+                <h3>Classic Time Attack</h3>
+                <p>Race against the clock</p>
+            </div>
+            <div class="game-mode-card" onclick="location.href='game.html?mode=word-rain'">
+                <h3>Word Rain</h3>
+                <p>Catch falling words</p>
+            </div>
+            <div class="game-mode-card" onclick="location.href='game.html?mode=sentence'">
+                <h3>Sentence Challenge</h3>
+                <p>Complex sentence typing</p>
+            </div>
+            <div class="game-mode-card" onclick="location.href='game.html?mode=survival'">
+                <h3>Survival Mode</h3>
+                <p>Don't make mistakes</p>
+            </div>
+            <div class="game-mode-card" onclick="location.href='game.html?mode=race'">
+                <h3>AI Typing Race</h3>
+                <p>Beat the AI opponent</p>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 3rem;">Recent History</h2>
+        <div id="historyList" style="margin-top: 1rem;">
+            <!-- History items will be populated here -->
+            <p style="color: var(--text-muted);">Loading history...</p>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>
