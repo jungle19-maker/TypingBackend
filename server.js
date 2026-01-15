@@ -15,12 +15,27 @@ setupSecurity(app);
 
 app.use(express.json());
 
+import cors from "cors";
+import express from "express";
+
+app.use(cors({
+  origin: [
+    "http://localhost:5173",          // local frontend
+    "https://typingfrontend.vercel.app/" // production frontend (later)
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
+
+app.use(express.json());
+
+
 app.get('/', (req, res) => {
-    res.send('API is running...');
+  res.send('API is running...');
 });
 
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', timestamp: new Date() });
+  res.status(200).json({ status: 'ok', timestamp: new Date() });
 });
 
 // Import Routes
@@ -36,5 +51,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
