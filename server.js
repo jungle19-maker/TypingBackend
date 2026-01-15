@@ -15,21 +15,6 @@ setupSecurity(app);
 
 app.use(express.json());
 
-import cors from "cors";
-import express from "express";
-
-app.use(cors({
-  origin: [
-    "http://localhost:5173",          // local frontend
-    "https://typingfrontend.vercel.app/" // production frontend (later)
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true
-}));
-
-app.use(express.json());
-
-
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
