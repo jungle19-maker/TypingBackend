@@ -26,9 +26,11 @@ app.get('/health', (req, res) => {
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const resultRoutes = require('./routes/resultRoutes');
+const typingRoutes = require('./routes/typingRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/results', resultRoutes);
+app.use('/api/typing', typingRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);
