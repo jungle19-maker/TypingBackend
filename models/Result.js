@@ -8,6 +8,7 @@ const resultSchema = new mongoose.Schema({
     },
     gameType: {
         type: String,
+        
         required: true,
         enum: ['Time Attack', 'Word Rain', 'Sentence Challenge', 'Survival', 'Typing Race']
     },
