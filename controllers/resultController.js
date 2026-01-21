@@ -4,7 +4,7 @@ const Result = require('../models/Result');
 // @route   POST /api/results
 // @access  Private
 const saveResult = async (req, res) => {
-    const { gameType, wpm, accuracy, mistakeCount } = req.body;
+    const { gameType, wpm, accuracy, mistakeCount, language } = req.body;
 
     if (!gameType || wpm === undefined || accuracy === undefined) {
         return res.status(400).json({ message: 'Please provide all game data' });
@@ -16,6 +16,7 @@ const saveResult = async (req, res) => {
         wpm,
         accuracy,
         mistakeCount,
+        language: language || 'english'
     });
 
     res.status(201).json(result);
