@@ -10,7 +10,15 @@ const setupSecurity = (app) => {
     app.use(helmet());
 
     // Data Sanitization against NoSQL query injection
-    app.use(mongoSanitize());
+
+    app.use((req, res, next) => {
+        req.body = mongoSanitize.sanitize(req.body);
+        req.params = mongoSanitize.sanitize(req.params);
+        if (req.query) {
+            mongoSanitize.sanitize(req.query);
+        }
+        next();
+    });
 
     // Prevent Parameter Pollution
     app.use(hpp());
