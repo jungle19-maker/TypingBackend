@@ -2,10 +2,18 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const cors = require('cors');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
 
 const setupSecurity = (app) => {
     // Security Headers
     app.use(helmet());
+
+    // Data Sanitization against NoSQL query injection
+    app.use(mongoSanitize());
+
+    // Prevent Parameter Pollution
+    app.use(hpp());
 
     // Compress responses
     app.use(compression());
@@ -20,9 +28,10 @@ const setupSecurity = (app) => {
 
     // CORS
     app.use(cors({
-        origin: process.env.CLIENT_URL || '*', // Allow all or specific client
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+        origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', process.env.CLIENT_URL],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+        credentials: true
     }));
 };
 

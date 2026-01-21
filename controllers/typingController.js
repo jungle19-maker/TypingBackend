@@ -1,98 +1,107 @@
-const {
-    TWO_LETTER_WORDS, THREE_LETTER_WORDS, FOUR_LETTER_WORDS, FIVE_LETTER_WORDS,
-    SIX_LETTER_WORDS, MIXED_DIFFICULT_WORDS, CAPITAL_CONTENT, PARAGRAPHS
-} = require('../data/typingContent');
+const EnglishContent = require('../models/EnglishContent');
+const HindiContent = require('../models/HindiContent');
 
-// Helper to shuffle array
-const shuffle = (array) => {
-    return array.sort(() => 0.5 - Math.random());
+// In-memory simple cache
+const cache = {
+    englishWords: [],
+    lastCached: 0
 };
+const CACHE_TTL = 3600 * 1000; // 1 hour
 
-exports.getWords = (req, res) => {
-    const length = parseInt(req.query.length);
-    const difficulty = req.query.difficulty; // 'beginner', 'intermediate', 'advanced'
-    let words = [];
+// Helper to shuffle
+const shuffle = (array) => array.sort(() => 0.5 - Math.random());
 
-    if (difficulty) {
-        if (difficulty === 'beginner' || difficulty === 'basic') {
-            words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS];
-        } else if (difficulty === 'intermediate') {
-            words = [...FOUR_LETTER_WORDS, ...FIVE_LETTER_WORDS, ...SIX_LETTER_WORDS];
-        } else if (difficulty === 'advanced') {
-            words = [...SIX_LETTER_WORDS, ...MIXED_DIFFICULT_WORDS];
-        } else {
-            // Fallback
-            words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS];
+// --- ENGLISH ---
+
+exports.getWords = async (req, res) => {
+    try {
+        const length = parseInt(req.query.length);
+        const limit = parseInt(req.query.limit) || 50;
+
+        // Basic caching logic for all words to avoid DB hammering on every keystroke/game restart
+        const now = Date.now();
+        if (!cache.englishWords.length || now - cache.lastCached > CACHE_TTL) {
+            cache.englishWords = await EnglishContent.find({ type: 'word' }).lean();
+            cache.lastCached = now;
         }
-    } else if (length) {
-        if (length === 2) words = TWO_LETTER_WORDS;
-        else if (length === 3) words = THREE_LETTER_WORDS;
-        else if (length === 4) words = FOUR_LETTER_WORDS;
-        else if (length === 5) words = FIVE_LETTER_WORDS;
-        else if (length === 6) words = SIX_LETTER_WORDS;
-        else words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS];
-    } else {
-        // Default or other lengths if implemented later
-        words = [...TWO_LETTER_WORDS, ...THREE_LETTER_WORDS, ...FOUR_LETTER_WORDS];
+
+        let words = cache.englishWords;
+
+        if (length) {
+            words = words.filter(w => w.length === length);
+        }
+
+        // If very few words found (e.g. unlikely length), fallback or return what we have
+        const shuffled = shuffle(words).slice(0, limit).map(w => w.content);
+
+        res.status(200).json({ status: 'success', data: shuffled });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
     }
-
-    // Return shuffled subset or all
-    const limit = req.query.limit ? parseInt(req.query.limit) : 50;
-    const shuffled = shuffle([...words]).slice(0, limit);
-
-    res.status(200).json({
-        status: 'success',
-        data: shuffled
-    });
 };
 
-exports.getCapitals = (req, res) => {
-    const limit = req.query.limit ? parseInt(req.query.limit) : 30;
-    const difficulty = req.query.difficulty || 'basic';
-
-    // Filter by difficulty if specified, or return mixed if not found (though our data covers all)
-    // We can also fallback to basic if no match found.
-    const filtered = CAPITAL_CONTENT.filter(item => item.difficulty === difficulty);
-
-    // If filtered is empty (e.g. wrong difficulty), usage fallback?
-    // Let's use basic as default fallback if empty
-    const source = filtered.length > 0 ? filtered : CAPITAL_CONTENT.filter(item => item.difficulty === 'basic');
-
-    const shuffled = shuffle([...source]).slice(0, limit);
-
-    // Frontend expects array of strings, but our new content is objects
-    // Map back to strings
-    const resultData = shuffled.map(item => item.text);
-
-    res.status(200).json({
-        status: 'success',
-        data: resultData
-    });
+exports.getCapitals = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 30;
+        const capitals = await EnglishContent.find({ category: 'capital' }).limit(100).lean();
+        const shuffled = shuffle(capitals).slice(0, limit).map(w => w.content);
+        res.status(200).json({ status: 'success', data: shuffled });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
 };
 
-exports.getParagraphs = (req, res) => {
-    const difficulty = req.query.difficulty || 'basic';
+exports.getParagraphs = async (req, res) => {
+    try {
+        const difficulty = req.query.difficulty || 'beginner';
+        const paras = await EnglishContent.find({ type: 'paragraph', difficulty }).lean();
 
-    // Filter by difficulty
-    const filtered = PARAGRAPHS.filter(p => p.difficulty === difficulty);
+        let selection = [];
+        if (paras.length > 0) {
+            selection = [paras[Math.floor(Math.random() * paras.length)]];
+        }
 
-    // If no exact match (e.g. if 'expert' requested but not found), fallback to all or basic
-    // For now, let's just return what we found, or random if empty?
-    // User requirement: "basic to advance"
-
-    let selection = [];
-    if (filtered.length > 0) {
-        // Return one random paragraph from the filtered set
-        selection = [filtered[Math.floor(Math.random() * filtered.length)]];
-    } else {
-        // Fallback if empty (shouldn't happen with our data)
-        selection = [PARAGRAPHS[Math.floor(Math.random() * PARAGRAPHS.length)]];
+        res.status(200).json({ status: 'success', data: selection });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
     }
+};
 
-    res.status(200).json({
-        status: 'success',
-        data: selection // Return as array for consistency
-    });
+
+// --- HINDI ---
+
+exports.getHindiWords = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        const words = await HindiContent.find({ type: 'word' }).lean();
+        const shuffled = shuffle(words).slice(0, limit).map(w => w.content);
+        res.status(200).json({ status: 'success', data: shuffled });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+exports.getHindiSentences = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const sentences = await HindiContent.find({ type: 'sentence' }).lean();
+        const shuffled = shuffle(sentences).slice(0, limit).map(s => s.content);
+        res.status(200).json({ status: 'success', data: shuffled });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+exports.getHindiParagraphs = async (req, res) => {
+    try {
+        const difficulty = req.query.difficulty || 'beginner';
+        const paras = await HindiContent.find({ type: 'paragraph', difficulty }).lean();
+        const selection = paras.length > 0 ? [paras[Math.floor(Math.random() * paras.length)]] : [];
+        res.status(200).json({ status: 'success', data: selection });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
 };
 
 exports.saveResult = (req, res) => {

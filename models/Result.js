@@ -8,9 +8,12 @@ const resultSchema = new mongoose.Schema({
     },
     gameType: {
         type: String,
-        
         required: true,
-        enum: ['Time Attack', 'Word Rain', 'Sentence Challenge', 'Survival', 'Typing Race']
+        enum: [
+            'Time Attack', 'Word Rain', 'Sentence Challenge', 'Survival', 'Typing Race',
+            'classic', 'word-rain', 'sentence', 'survival', 'race',
+            'practice-2-letter', 'practice-3-letter', 'practice-capital', 'practice-paragraph'
+        ]
     },
     wpm: {
         type: Number,
@@ -23,6 +26,11 @@ const resultSchema = new mongoose.Schema({
     mistakeCount: {
         type: Number,
         default: 0
+    },
+    language: {
+        type: String,
+        enum: ['english', 'hindi'],
+        default: 'english'
     },
     date: {
         type: Date,

@@ -27,10 +27,14 @@ app.get('/health', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const typingRoutes = require('./routes/typingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const examRoutes = require('./routes/examRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/typing', typingRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/exams', examRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);
