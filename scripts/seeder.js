@@ -6,10 +6,10 @@ const {
 } = require('../data/typingContent');
 const { HINDI_WORDS, HINDI_SENTENCES, HINDI_PARAGRAPHS } = require('../data/hindiContent');
 
-const EnglishContent = require('../models/EnglishContent');
-const HindiContent = require('../models/HindiContent');
-const Plan = require('../models/Plan');
-const connectDB = require('../config/db');
+const EnglishContent = require('../src/modules/typing/EnglishContent.model');
+const HindiContent = require('../src/modules/typing/HindiContent.model');
+const Plan = require('../src/modules/user/plan.model');
+const connectDB = require('../src/config/db');
 
 dotenv.config({ path: './.env' }); // Adjust path if running from backend root
 

@@ -6,8 +6,8 @@ const {
     getMe,
     upgradeSubscription,
     getPlans
-} = require('../controllers/authController');
-const { protect } = require('../middleware/authMiddleware');
+} = require('./auth.controller');
+const { protect } = require('../../middlewares/auth.middleware');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);

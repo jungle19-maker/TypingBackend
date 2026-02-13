@@ -35,8 +35,29 @@ const setupSecurity = (app) => {
     app.use('/api', limiter);
 
     // CORS
+    // CORS
     app.use(cors({
-        origin: ['https://typingfrontend.vercel.app', 'https://typingadmin.vercel.app', process.env.CLIENT_URL],
+        origin: function (origin, callback) {
+            // Allow requests with no origin (like mobile apps, curl requests)
+            if (!origin) return callback(null, true);
+
+            // Allow any localhost origin
+            if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+                return callback(null, true);
+            }
+
+            const allowedOrigins = [
+                'https://typingfrontend.vercel.app',
+                'https://typingadmin.vercel.app',
+                process.env.CLIENT_URL
+            ];
+
+            if (allowedOrigins.indexOf(origin) !== -1) {
+                return callback(null, true);
+            } else {
+                return callback(new Error('Not allowed by CORS'));
+            }
+        },
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
         allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
         credentials: true
